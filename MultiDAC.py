@@ -6,6 +6,7 @@ from string import ascii_uppercase
 
 from hikari.dataframes import HklFrame
 from hikari.symmetry import SG
+import numpy as np
 import pandas as pd
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ INPUT ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
@@ -142,6 +143,15 @@ def main():
         hkl_unfolded_sum = add_hkl_frames(unfolded_hkl_frames_subset)
         hkl_unfolded_sum.merge()
         save_nice_hkl_res(hkl_unfolded_sum, name + '_unfolded')
+
+        hkl_sum.find_equivalents(pg)
+        equivs = set(hkl_sum.table['equiv'])
+        h_missing = h_base.copy()
+        missing = np.array([e not in equivs for e in h_base.table['equiv']])
+        h_missing.table = h_missing.table[missing]
+        h_missing.table['m'] = 1
+        h_missing.table['F'] = np.linspace(1.0, 2.0, len(h_missing))
+        save_nice_hkl_res(h_missing, name + '_missing')
 
     print(hkl_stats.table)
 
